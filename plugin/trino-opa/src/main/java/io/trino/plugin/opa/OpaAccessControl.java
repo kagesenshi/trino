@@ -90,9 +90,10 @@ public sealed class OpaAccessControl
         this.pluginContext = requireNonNull(pluginContext, "pluginContext is null");
     }
 
-//    @Override
-    public void checkCanImpersonateUser(Identity identity, String userName)
+    @Override
+    public void checkCanImpersonateUser(SystemSecurityContext context, String userName)
     {
+        Identity identity = context.getIdentity();
         opaHighLevelClient.queryAndEnforce(
                 buildQueryContext(identity),
                 "ImpersonateUser",

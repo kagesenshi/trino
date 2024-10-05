@@ -424,7 +424,7 @@ public class TestOpaAccessControl
         InstrumentedHttpClient mockClient = createMockHttpClient(OPA_SERVER_URI, buildValidatingRequestHandler(requestingIdentity, OK_RESPONSE));
         OpaAccessControl authorizer = createOpaAuthorizer(OPA_SERVER_URI, mockClient);
 
-        authorizer.checkCanImpersonateUser(requestingIdentity, "some_other_user");
+        authorizer.checkCanImpersonateUser(requestingSecurityContext, "some_other_user");
 
         String expectedRequest = """
                 {
@@ -450,7 +450,7 @@ public class TestOpaAccessControl
         OpaAccessControl authorizer = createOpaAuthorizer(OPA_SERVER_URI, mockClient);
 
         assertThatThrownBy(
-                () -> authorizer.checkCanImpersonateUser(requestingIdentity, "some_other_user"))
+                () -> authorizer.checkCanImpersonateUser(requestingSecurityContext, "some_other_user"))
                 .isInstanceOf(expectedException)
                 .hasMessageContaining(expectedErrorMessage);
     }
