@@ -52,6 +52,7 @@ import java.util.function.Consumer;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static io.trino.plugin.opa.OpaHighLevelClient.buildQueryInputForSimpleResource;
+import static io.trino.spi.security.AccessDeniedException.denyCatalogAccess;
 import static io.trino.spi.security.AccessDeniedException.denyCreateCatalog;
 import static io.trino.spi.security.AccessDeniedException.denyCreateSchema;
 import static io.trino.spi.security.AccessDeniedException.denyCreateViewWithSelect;
@@ -163,9 +164,17 @@ public sealed class OpaAccessControl
                 OpaQueryInputResource.builder().systemSessionProperty(propertyName).build());
     }
 
-//    @Override
+    @Override
+    public void checkCanAccessCatalog(SystemSecurityContext context, String catalogName)
+    {
+        if (!canAccessCatalog(context, catalogName)) {
+            denyCatalogAccess(catalogName);
+        }
+    }
+
     public boolean canAccessCatalog(SystemSecurityContext context, String catalogName)
     {
+        Identity identity = context.getIdentity();
         return opaHighLevelClient.queryOpaWithSimpleResource(
                 buildQueryContext(context),
                 "AccessCatalog",
@@ -658,23 +667,20 @@ public sealed class OpaAccessControl
     }
 
     @Override
-    public void checkCanExecuteFunction(SystemSecurityContext systemSecurityContext, String functionName)
+    public void checkCanExecuteFunction(SystemSecurityContext context, String functionName)
     {
-        opaHighLevelClient.queryAndEnforce(
-                buildQueryContext(systemSecurityContext),
-                "ExecuteFunction",
-                () -> denyExecuteFunction(functionName),
-                OpaQueryInputResource.builder().function(new TrinoFunction(functionName)).build());
+        if (!canExecuteFunction(context, functionName)) {
+            denyExecuteFunction(functionName);
+        }
     }
 
-/*    @Override
-    public boolean canExecuteFunction(SystemSecurityContext systemSecurityContext, CatalogSchemaRoutineName functionName)
+    public boolean canExecuteFunction(SystemSecurityContext systemSecurityContext, String functionName)
     {
         return opaHighLevelClient.queryOpaWithSimpleResource(
                 buildQueryContext(systemSecurityContext),
                 "ExecuteFunction",
-                OpaQueryInputResource.builder().function(TrinoFunction.fromTrinoFunction(functionName)).build());
-    }*/
+                OpaQueryInputResource.builder().function(new TrinoFunction(functionName)).build());
+    }
 
 //    @Override
     public boolean canCreateViewWithExecuteFunction(SystemSecurityContext systemSecurityContext, CatalogSchemaRoutineName functionName)
