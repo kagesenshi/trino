@@ -82,22 +82,12 @@ public class TestOpaAccessControl
     @Test
     public void testNoResourceAction()
     {
-        testNoResourceActionContext("ExecuteQuery", OpaAccessControl::checkCanExecuteQuery);
+        testNoResourceAction("ExecuteQuery", OpaAccessControl::checkCanExecuteQuery);
         testNoResourceAction("ReadSystemInformation", OpaAccessControl::checkCanReadSystemInformation);
         testNoResourceAction("WriteSystemInformation", OpaAccessControl::checkCanWriteSystemInformation);
     }
 
-    private void testNoResourceAction(String actionName, BiConsumer<OpaAccessControl, Identity> method)
-    {
-        Set<String> expectedRequests = ImmutableSet.of("""
-                {
-                    "operation": "%s"
-                }""".formatted(actionName));
-        TestHelpers.ThrowingMethodWrapper wrappedMethod = new TestHelpers.ThrowingMethodWrapper((accessControl) -> method.accept(accessControl, TEST_IDENTITY));
-        assertAccessControlMethodBehaviour(wrappedMethod, expectedRequests);
-    }
-
-    private void testNoResourceActionContext(String actionName, BiConsumer<OpaAccessControl, SystemSecurityContext> method)
+    private void testNoResourceAction(String actionName, BiConsumer<OpaAccessControl, SystemSecurityContext> method)
     {
         Set<String> expectedRequests = ImmutableSet.of("""
                 {

@@ -138,15 +138,17 @@ public sealed class OpaAccessControl
         opaHighLevelClient.queryAndEnforce(buildQueryContext(identity), "KillQueryOwnedBy", AccessDeniedException::denyKillQuery, OpaQueryInputResource.builder().user(new TrinoUser(queryOwner)).build());
     }
 
-//    @Override
-    public void checkCanReadSystemInformation(Identity identity)
+    @Override
+    public void checkCanReadSystemInformation(SystemSecurityContext context)
     {
+        Identity identity = context.getIdentity();
         opaHighLevelClient.queryAndEnforce(buildQueryContext(identity), "ReadSystemInformation", AccessDeniedException::denyReadSystemInformationAccess);
     }
 
-//    @Override
-    public void checkCanWriteSystemInformation(Identity identity)
+    @Override
+    public void checkCanWriteSystemInformation(SystemSecurityContext context)
     {
+        Identity identity = context.getIdentity();
         opaHighLevelClient.queryAndEnforce(buildQueryContext(identity), "WriteSystemInformation", AccessDeniedException::denyWriteSystemInformationAccess);
     }
 
