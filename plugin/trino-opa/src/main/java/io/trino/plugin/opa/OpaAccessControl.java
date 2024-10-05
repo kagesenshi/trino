@@ -113,8 +113,9 @@ public sealed class OpaAccessControl
     }
 
 //    @Override
-    public void checkCanViewQueryOwnedBy(Identity identity, Identity queryOwner)
+    public void checkCanViewQueryOwnedBy(SystemSecurityContext context, Identity queryOwner)
     {
+        Identity identity = context.getIdentity();
         opaHighLevelClient.queryAndEnforce(buildQueryContext(identity), "ViewQueryOwnedBy", AccessDeniedException::denyViewQuery, OpaQueryInputResource.builder().user(new TrinoUser(queryOwner)).build());
     }
 
@@ -130,8 +131,9 @@ public sealed class OpaAccessControl
     }
 
 //    @Override
-    public void checkCanKillQueryOwnedBy(Identity identity, Identity queryOwner)
+    public void checkCanKillQueryOwnedBy(SystemSecurityContext context, Identity queryOwner)
     {
+        Identity identity = context.getIdentity();
         opaHighLevelClient.queryAndEnforce(buildQueryContext(identity), "KillQueryOwnedBy", AccessDeniedException::denyKillQuery, OpaQueryInputResource.builder().user(new TrinoUser(queryOwner)).build());
     }
 

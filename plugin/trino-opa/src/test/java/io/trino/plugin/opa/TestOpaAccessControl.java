@@ -285,7 +285,7 @@ public class TestOpaAccessControl
 
     private static Stream<Arguments> identityResourceTestCases()
     {
-        Stream<FunctionalHelpers.Consumer3<OpaAccessControl, Identity, Identity>> methods = Stream.of(
+        Stream<FunctionalHelpers.Consumer3<OpaAccessControl, SystemSecurityContext, Identity>> methods = Stream.of(
                 OpaAccessControl::checkCanViewQueryOwnedBy,
                 OpaAccessControl::checkCanKillQueryOwnedBy);
         Stream<String> actions = Stream.of(
@@ -298,7 +298,7 @@ public class TestOpaAccessControl
     @MethodSource("io.trino.plugin.opa.TestOpaAccessControl#identityResourceTestCases")
     public void testIdentityResourceActions(
             String actionName,
-            FunctionalHelpers.Consumer3<OpaAccessControl, Identity, Identity> callable)
+            FunctionalHelpers.Consumer3<OpaAccessControl, SystemSecurityContext, Identity> callable)
     {
         InstrumentedHttpClient mockClient = createMockHttpClient(OPA_SERVER_URI, buildValidatingRequestHandler(requestingIdentity, OK_RESPONSE));
         OpaAccessControl authorizer = createOpaAuthorizer(OPA_SERVER_URI, mockClient);
@@ -306,7 +306,7 @@ public class TestOpaAccessControl
         Identity dummyIdentity = Identity.forUser("dummy-user")
                 .withGroups(ImmutableSet.of("some-group"))
                 .build();
-        callable.accept(authorizer, requestingIdentity, dummyIdentity);
+        callable.accept(authorizer, requestingSecurityContext, dummyIdentity);
 
         String expectedRequest = """
                 {
@@ -331,7 +331,7 @@ public class TestOpaAccessControl
     @MethodSource("io.trino.plugin.opa.TestOpaAccessControl#identityResourceFailureTestCases")
     public void testIdentityResourceActionsFailure(
             String actionName,
-            FunctionalHelpers.Consumer3<OpaAccessControl, Identity, Identity> method,
+            FunctionalHelpers.Consumer3<OpaAccessControl, SystemSecurityContext, Identity> method,
             MockResponse failureResponse,
             Class<? extends Throwable> expectedException,
             String expectedErrorMessage)
@@ -342,7 +342,7 @@ public class TestOpaAccessControl
         assertThatThrownBy(
                 () -> method.accept(
                         authorizer,
-                        requestingIdentity,
+                        requestingSecurityContext,
                         Identity.ofUser("dummy-user")))
                 .isInstanceOf(expectedException)
                 .hasMessageContaining(expectedErrorMessage);
