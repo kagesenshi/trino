@@ -63,7 +63,7 @@ public class TestOpaAccessControlFiltering
         List<Identity> requestedIdentities = ImmutableList.of(userOne, userTwo);
 
         Collection<Identity> result = authorizer.filterViewQueryOwnedBy(
-                requestingIdentity,
+                requestingSecurityContext,
                 requestedIdentities);
         assertThat(result).containsExactly(userOne);
 

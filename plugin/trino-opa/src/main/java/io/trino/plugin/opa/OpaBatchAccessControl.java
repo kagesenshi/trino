@@ -65,8 +65,9 @@ public final class OpaBatchAccessControl
     }
 
     @Override
-    public Collection<Identity> filterViewQueryOwnedBy(Identity identity, Collection<Identity> queryOwners)
+    public Collection<Identity> filterViewQueryOwnedBy(SystemSecurityContext context, Collection<Identity> queryOwners)
     {
+        Identity identity = context.getIdentity();
         return batchFilterFromOpa(
                 buildQueryContext(identity),
                 "FilterViewQueryOwnedBy",

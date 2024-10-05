@@ -70,7 +70,7 @@ public class TestOpaBatchAccessControlFiltering
         Identity identityThree = Identity.ofUser("user-three");
         List<Identity> requestedIdentities = ImmutableList.of(identityOne, identityTwo, identityThree);
 
-        Collection<Identity> result = authorizer.filterViewQueryOwnedBy(requestingIdentity, requestedIdentities);
+        Collection<Identity> result = authorizer.filterViewQueryOwnedBy(requestingSecurityContext, requestedIdentities);
         assertThat(result).containsExactlyInAnyOrderElementsOf(getSubset(requestedIdentities, expectedItems));
 
         String expectedRequest = """
@@ -421,7 +421,7 @@ public class TestOpaBatchAccessControlFiltering
                         .buildOrThrow()))
                 .isInstanceOf(OpaQueryException.QueryFailed.class);
         assertThatThrownBy(() -> authorizer.filterViewQueryOwnedBy(
-                requestingIdentity,
+                requestingSecurityContext,
                 ImmutableSet.of(Identity.ofUser("identity_one"), Identity.ofUser("identity_two"))))
                 .isInstanceOf(OpaQueryException.QueryFailed.class);
     }
