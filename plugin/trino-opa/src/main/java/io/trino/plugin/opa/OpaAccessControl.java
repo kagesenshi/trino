@@ -152,9 +152,10 @@ public sealed class OpaAccessControl
         opaHighLevelClient.queryAndEnforce(buildQueryContext(identity), "WriteSystemInformation", AccessDeniedException::denyWriteSystemInformationAccess);
     }
 
-//    @Override
-    public void checkCanSetSystemSessionProperty(Identity identity, String propertyName)
+    @Override
+    public void checkCanSetSystemSessionProperty(SystemSecurityContext context, String propertyName)
     {
+        Identity identity = context.getIdentity();
         opaHighLevelClient.queryAndEnforce(
                 buildQueryContext(identity),
                 "SetSystemSessionProperty",

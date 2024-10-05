@@ -341,7 +341,7 @@ public class TestOpaAccessControl
     private static Stream<Arguments> stringResourceTestCases()
     {
         Stream<FunctionalHelpers.Consumer3<OpaAccessControl, SystemSecurityContext, String>> methods = Stream.of(
-                (accessControl, systemSecurityContext, argument) -> accessControl.checkCanSetSystemSessionProperty(systemSecurityContext.getIdentity(), argument),
+                (accessControl, systemSecurityContext, argument) -> accessControl.checkCanSetSystemSessionProperty(systemSecurityContext, argument),
                 OpaAccessControl::checkCanCreateCatalog,
                 OpaAccessControl::checkCanDropCatalog,
                 OpaAccessControl::checkCanShowSchemas);
