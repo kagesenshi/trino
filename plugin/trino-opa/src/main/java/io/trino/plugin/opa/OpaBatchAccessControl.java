@@ -14,6 +14,7 @@
 package io.trino.plugin.opa;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.airlift.json.JsonCodec;
@@ -27,6 +28,7 @@ import io.trino.plugin.opa.schema.TrinoFunction;
 import io.trino.plugin.opa.schema.TrinoSchema;
 import io.trino.plugin.opa.schema.TrinoTable;
 import io.trino.plugin.opa.schema.TrinoUser;
+import io.trino.spi.connector.CatalogSchemaTableName;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.function.SchemaFunctionName;
 import io.trino.spi.security.Identity;
@@ -110,7 +112,19 @@ public final class OpaBatchAccessControl
     }
 
     @Override
-    public Map<SchemaTableName, Set<String>> filterColumns(SystemSecurityContext context, String catalogName, Map<SchemaTableName, Set<String>> tableColumns)
+    public Set<String> filterColumns(SystemSecurityContext context, CatalogSchemaTableName table, Set<String> columns)
+    {
+        String catalogName = table.getCatalogName();
+        SchemaTableName schemaTableName = table.getSchemaTableName();
+        Map<SchemaTableName, Set<String>> tableColumns = ImmutableMap.<SchemaTableName, Set<String>>builder()
+                .put(schemaTableName, columns)
+                .buildOrThrow();
+        Map<SchemaTableName, Set<String>> results = bulkFilterColumns(context, catalogName, tableColumns);
+        return results.get(schemaTableName);
+    }
+
+    @Override
+    public Map<SchemaTableName, Set<String>> bulkFilterColumns(SystemSecurityContext context, String catalogName, Map<SchemaTableName, Set<String>> tableColumns)
     {
         BiFunction<SchemaTableName, List<String>, OpaQueryInput> requestBuilder = batchRequestBuilder(
                 buildQueryContext(context),

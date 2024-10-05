@@ -265,7 +265,8 @@ public class TestOpaBatchAccessControlFiltering
                             return new MockResponse(responseContents, 200);
                         }));
         OpaAccessControl authorizer = createOpaAuthorizer(OPA_SERVER_URI, OPA_BATCH_SERVER_URI, mockClient);
-        Map<SchemaTableName, Set<String>> result = authorizer.filterColumns(
+        // FIXME: This test a bit indirect, because it should be tested against filterColumns
+        Map<SchemaTableName, Set<String>> result = authorizer.bulkFilterColumns(
                 requestingSecurityContext,
                 "my_catalog",
                 requestedColumns);
@@ -358,7 +359,8 @@ public class TestOpaBatchAccessControlFiltering
                 .put(tableTwo, ImmutableSet.of())
                 .buildOrThrow();
 
-        Map<SchemaTableName, Set<String>> result = authorizer.filterColumns(
+        // FIXME: This test a bit indirect, because it should be tested against filterColumns
+        Map<SchemaTableName, Set<String>> result = authorizer.bulkFilterColumns(
                 requestingSecurityContext,
                 "my_catalog",
                 requestedColumns);
@@ -413,7 +415,9 @@ public class TestOpaBatchAccessControlFiltering
                                 new SchemaTableName("some_schema", "table_one"),
                                 new SchemaTableName("some_schema", "table_two"))))
                 .isInstanceOf(OpaQueryException.QueryFailed.class);
-        assertThatThrownBy(() -> authorizer.filterColumns(
+
+        // FIXME: This test a bit indirect, because it should be tested against filterColumns
+        assertThatThrownBy(() -> authorizer.bulkFilterColumns(
                 requestingSecurityContext,
                 "some_catalog",
                 ImmutableMap.<SchemaTableName, Set<String>>builder()

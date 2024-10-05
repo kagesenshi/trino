@@ -13,6 +13,7 @@
  */
 package io.trino.plugin.opa;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimaps;
@@ -375,8 +376,20 @@ public sealed class OpaAccessControl
         checkTableOperation(context, "ShowColumns", table, AccessDeniedException::denyShowColumns);
     }
 
+    @Override
+    public Set<String> filterColumns(SystemSecurityContext context, CatalogSchemaTableName table, Set<String> columns)
+    {
+        String catalogName = table.getCatalogName();
+        SchemaTableName schemaTableName = table.getSchemaTableName();
+        Map<SchemaTableName, Set<String>> tableColumns = ImmutableMap.<SchemaTableName, Set<String>>builder()
+                .put(schemaTableName, columns)
+                .buildOrThrow();
+        Map<SchemaTableName, Set<String>> results = bulkFilterColumns(context, catalogName, tableColumns);
+        return results.get(schemaTableName);
+    }
+
 //    @Override
-    public Map<SchemaTableName, Set<String>> filterColumns(SystemSecurityContext context, String catalogName, Map<SchemaTableName, Set<String>> tableColumns)
+    public Map<SchemaTableName, Set<String>> bulkFilterColumns(SystemSecurityContext context, String catalogName, Map<SchemaTableName, Set<String>> tableColumns)
     {
         ImmutableSet.Builder<TrinoTable> allColumnsBuilder = ImmutableSet.builder();
         for (Map.Entry<SchemaTableName, Set<String>> entry : tableColumns.entrySet()) {

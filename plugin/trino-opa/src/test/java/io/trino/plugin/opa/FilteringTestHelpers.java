@@ -47,12 +47,14 @@ public final class FilteringTestHelpers
 
     public static Stream<Arguments> prepopulatedErrorCases()
     {
+        // FIXME: bulkfilterColumns test a bit indirect, because it should be tested against filterColumns
+
         Stream<BiFunction<OpaAccessControl, SystemSecurityContext, ?>> callables = Stream.of(
                 (authorizer, context) -> authorizer.filterViewQueryOwnedBy(context, ImmutableSet.of(Identity.ofUser("foo"))),
                 (authorizer, context) -> authorizer.filterCatalogs(context, ImmutableSet.of("foo")),
                 (authorizer, context) -> authorizer.filterSchemas(context, "my_catalog", ImmutableSet.of("foo")),
                 (authorizer, context) -> authorizer.filterTables(context, "my_catalog", ImmutableSet.of(new SchemaTableName("foo", "bar"))),
-                (authorizer, context) -> authorizer.filterColumns(
+                (authorizer, context) -> authorizer.bulkFilterColumns(
                         context,
                         "my_catalog",
                         ImmutableMap.of(

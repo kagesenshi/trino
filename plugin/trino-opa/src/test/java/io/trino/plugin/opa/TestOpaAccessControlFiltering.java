@@ -214,7 +214,8 @@ public class TestOpaAccessControlFiltering
         InstrumentedHttpClient mockClient = createMockHttpClient(OPA_SERVER_URI, buildHandler("/input/action/resource/table/columns/0", columnsToAllow));
         OpaAccessControl authorizer = createOpaAuthorizer(OPA_SERVER_URI, mockClient);
 
-        Map<SchemaTableName, Set<String>> result = authorizer.filterColumns(requestingSecurityContext, "my_catalog", requestedColumns);
+        // FIXME: This test a bit indirect, because it should be tested against filterColumns
+        Map<SchemaTableName, Set<String>> result = authorizer.bulkFilterColumns(requestingSecurityContext, "my_catalog", requestedColumns);
 
         Set<String> expectedRequests = requestedColumns.entrySet().stream()
                 .<String>mapMulti(
@@ -250,7 +251,8 @@ public class TestOpaAccessControlFiltering
         SchemaTableName someTable = SchemaTableName.schemaTableName("my_schema", "my_table");
         Map<SchemaTableName, Set<String>> requestedColumns = ImmutableMap.of(someTable, ImmutableSet.of());
 
-        Map<SchemaTableName, Set<String>> result = authorizer.filterColumns(
+        // FIXME: This test a bit indirect, because it should be tested against filterColumns
+        Map<SchemaTableName, Set<String>> result = authorizer.bulkFilterColumns(
                 requestingSecurityContext,
                 "my_catalog",
                 requestedColumns);
